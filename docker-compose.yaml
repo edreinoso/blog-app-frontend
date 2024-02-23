@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  react_service:
+    build:
+      context: .
+    container_name: react_container
+    ports: 
+      - "80:80"
