@@ -2,58 +2,33 @@ import { Box, Button, Flex, Grid, Heading, Spinner } from "@chakra-ui/react";
 import React from "react";
 import { HiPlus } from "react-icons/hi";
 import { Link as RouterLink } from "react-router-dom";
-import BlogPostsAPI, {
-  PostPaginateRequestBody,
-  PostPaginateResponseBody,
+import {
+  useRetrieveBlogPosts,
 } from "src/services/blogposts";
 import { BlogPost, User } from "src/types";
-import useApi from "src/utils/useApi";
 import useStateSelector from "src/utils/useStateSelector";
 import ArticleCard from "./ArticleCard";
 
 interface HomeProps {}
 
-const SEARCH_LIMIT = 6;
-
 const Home: React.FC<HomeProps> = () => {
   const [users, setUsers] = React.useState<User[]>([]);
   const [blogposts, setBlogposts] = React.useState<BlogPost[]>([]);
-  const [hasMore, setHasMore] = React.useState<boolean>(false);
 
   const { isAuthenticated } = useStateSelector((state) => state.auth);
 
-  const [{ isPending }, postPaginate] = useApi<
-    PostPaginateRequestBody,
-    PostPaginateResponseBody
-  >(BlogPostsAPI.buildPostPaginate());
+  // Correctly destructure the object returned by useGetAllBlogPosts
+  const { data: blogsdata, isLoading } = useRetrieveBlogPosts();
 
-  const paginate = async () => {
-    let res;
-
-    if (blogposts.length === 0) {
-      res = await postPaginate({
-        cursor: Date.now(),
-        limit: SEARCH_LIMIT,
-      });
-    } else {
-      const oldestTimestamp = Math.min(...blogposts.map((bp) => bp.created_at));
-      res = await postPaginate({
-        cursor: oldestTimestamp,
-        limit: SEARCH_LIMIT,
-      });
-    }
-
-    if (res.isOk) {
-      setUsers([...users, ...res.data.data.users]);
-      setBlogposts([...blogposts, ...res.data.data.blogposts]);
-      setHasMore(res.data.data.has_more);
-    }
-  };
-
+  // Directly use the data returned by the hook
   React.useEffect(() => {
-    paginate();
-  }, []);
-
+    if (blogsdata) {
+      // Assuming blogsData directly contains the array of blog posts and users
+      setBlogposts(blogsdata.data.blogposts || []);
+      setUsers(blogsdata.data.users || []);
+    }
+  }, [blogsdata]); // Dependency array ensures this effect runs only when blogsData changes
+  
   return (
     <Box bg="gray.50" minH="100vh" py="12" px={{ base: "4", lg: "8" }}>
       <Box maxW="5xl" mx="auto">
@@ -81,24 +56,9 @@ const Home: React.FC<HomeProps> = () => {
           })}
         </Grid>
 
-        {isPending && (
+        {isLoading && (
           <Flex justifyContent="center" my={4}>
             <Spinner color="purple.500" />
-          </Flex>
-        )}
-
-        {hasMore && (
-          <Flex justifyContent="center" mt={5}>
-            <Button
-              isLoading={isPending}
-              type="button"
-              colorScheme="gray"
-              size="lg"
-              fontSize="md"
-              onClick={paginate}
-            >
-              Load More
-            </Button>
           </Flex>
         )}
       </Box>

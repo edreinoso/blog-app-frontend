@@ -1,14 +1,14 @@
 import { Button, Flex, FormControl, FormLabel, Stack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import React from "react";
+import { Navigate } from "react-router-dom";
 import PasswordField from "src/components/common/forms/PasswordField";
 import TextField from "src/components/common/forms/TextField";
-import UsersAPI, {
-  PostLoginRequestBody,
-  PostLoginResponseBody,
+import {
+  useLoginUser,
+  PostLoginRequestBody
 } from "src/services/users";
 import { login } from "src/store/actions/auth";
-import useApi from "src/utils/useApi";
 import useStateDispatch from "src/utils/useStateDispatch";
 import * as Yup from "yup";
 
@@ -22,10 +22,8 @@ type LoginFormValues = {
 const LoginForm: React.FC<LoginFormProps> = () => {
   const dispatch = useStateDispatch();
 
-  const [{ isPending }, postLogin] = useApi<
-    PostLoginRequestBody,
-    PostLoginResponseBody
-  >(UsersAPI.buildPostLogin());
+  const { mutate: postLogin, isLoading, isSuccess } = useLoginUser();
+  // const { mutate: postLogin, isLoading, isSuccess } = useLoginUser();
 
   const validationSchema = Yup.object({
     email: Yup.string().email().required("Please insert your email."),
@@ -37,10 +35,18 @@ const LoginForm: React.FC<LoginFormProps> = () => {
     password: "",
   };
 
-  const handleSubmit = async (values: LoginFormValues) => {
-    const res = await postLogin(values);
-    if (res.isOk) dispatch(login({ user: res.data.data }));
+  const handleSubmit = async (values: PostLoginRequestBody) => {
+    await postLogin(values, {
+      onSuccess: (data) => {
+        dispatch(login({ user: data.data}))
+      },
+      onError: (error) => {
+        console.log('Oh oh, theres been an error', error)
+      }
+    })
   };
+
+  if (isSuccess) return <Navigate to="/" />;
 
   return (
     <Formik
@@ -67,8 +73,7 @@ const LoginForm: React.FC<LoginFormProps> = () => {
               <Flex justify="space-between">
                 <FormLabel>Password</FormLabel>
                 {/* 
-                TODO: we probably won't have time to implement 
-                a password reset flow for the deadline.
+                TODO: password reset flow for the deadline.
                 <Box
                   as="a"
                   color={linkColor}
@@ -87,7 +92,7 @@ const LoginForm: React.FC<LoginFormProps> = () => {
               />
             </FormControl>
             <Button
-              isLoading={isPending}
+              isLoading={isLoading}
               type="submit"
               colorScheme="purple"
               size="lg"

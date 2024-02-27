@@ -1,12 +1,12 @@
-import { Button, FormControl, Stack } from "@chakra-ui/react";
+import { Button, FormControl, Stack, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import React from "react";
 import { Navigate } from "react-router-dom";
 import PasswordField from "src/components/common/forms/PasswordField";
 import TextField from "src/components/common/forms/TextField";
-import UsersAPI, {
-  PostRequestBody,
-  PostResponseBody,
+import {
+  useCreateUser,
+  PostRequestBody
 } from "src/services/users";
 import useApi from "src/utils/useApi";
 import * as Yup from "yup";
@@ -22,11 +22,10 @@ type RegistrationFormValues = {
 };
 
 const RegistrationForm: React.FC<RegistrationFormProps> = () => {
-  const [{ isPending, isSuccess }, post] = useApi<
-    PostRequestBody,
-    PostResponseBody
-  >(UsersAPI.buildPost());
-
+  const { mutate: post, isLoading, isSuccess } = useCreateUser();
+  
+  const toast = useToast();
+  
   const validationSchema = Yup.object({
     email: Yup.string().email().required("Please insert your email."),
     password: Yup.string().required("Please insert your password"),
@@ -45,7 +44,15 @@ const RegistrationForm: React.FC<RegistrationFormProps> = () => {
 
   const handleSubmit = async (values: RegistrationFormValues) => {
     const { confirmPassword: _, ...otherValues } = values;
-    await post(otherValues);
+    await post(otherValues, {
+      onSuccess: () => {
+        toast({
+          status: "success",
+          title: "User has been created!",
+          position: "top",
+        });
+      }
+    });
   };
 
   if (isSuccess) return <Navigate to="/login" />;
@@ -108,7 +115,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = () => {
               />
             </FormControl>
             <Button
-              isLoading={isPending}
+              isLoading={isLoading}
               type="submit"
               colorScheme="purple"
               size="lg"
