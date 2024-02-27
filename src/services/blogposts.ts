@@ -1,40 +1,35 @@
 import { BlogPost, SuccessResponse, User } from "@types";
-import { Service } from "use-http-service";
+import { useMutation, useQuery } from "react-query";
+import axios from "axios";
 
-export interface IBlogPostsAPI {
-  buildPost: () => Service;
-  buildGetBlogPost: (args: { id: string }) => Service;
-  buildPutBlogPost: (args: { id: string }) => Service;
-  buildDeleteBlogPost: (args: { id: string }) => Service;
-  buildPostPaginate: () => Service;
-}
-
+const API_VERSION = "v1";
 const ROUTE = "blogposts";
 
-const BlogPostsAPI: IBlogPostsAPI = {
-  buildPost: () => ({
-    url: `${ROUTE}/`,
-    method: "POST",
-  }),
-  buildGetBlogPost: ({ id }) => ({
-    url: `${ROUTE}/${id}`,
-    method: "GET",
-  }),
-  buildPutBlogPost: ({ id }) => ({
-    url: `${ROUTE}/${id}`,
-    method: "PUT",
-  }),
-  buildDeleteBlogPost: ({ id }) => ({
-    url: `${ROUTE}/${id}`,
-    method: "DELETE",
-  }),
-  buildPostPaginate: () => ({
-    url: `${ROUTE}/paginate`,
-    method: "POST",
-  }),
+export const useGetBlogPostById = (id: string) => {
+  return useQuery(['blogPost', id], async () => {
+    const { data } = await axios.get(`${BACKEND_BASE_URL}/${ROUTE}/${id}`);
+    return data;
+  });
 };
 
-export default BlogPostsAPI;
+export const useGetAllBlogPosts = () => {
+  return useQuery("blogPosts", async () => {
+    const { data } = await axios.get(`${BACKEND_BASE_URL}/${ROUTE}/all`);
+    return data;
+  });
+}
+
+export const useCreateBlogPost = () => {
+  return useMutation(
+    async (body: PostRequestBody) => {
+      return await axios.request({
+    method: "POST",
+        url: `${BACKEND_BASE_URL}/${ROUTE}/`,
+        data: body,
+      });
+    }
+  );
+};
 
 export type PostRequestBody = {
   title: string;
