@@ -8,7 +8,6 @@ import {
   useCreateUser,
   PostRequestBody
 } from "src/services/users";
-import useApi from "src/utils/useApi";
 import * as Yup from "yup";
 
 interface RegistrationFormProps {}
