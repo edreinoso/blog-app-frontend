@@ -2,17 +2,17 @@ import { BlogPost, SuccessResponse, User } from "@types";
 import { useMutation, useQuery } from "react-query";
 import axios from "axios";
 
-const API_VERSION = "v1";
+const BACKEND_BASE_URL = process.env.REACT_APP_API_URL;
 const ROUTE = "blogposts";
 
-export const useGetBlogPostById = (id: string) => {
+export const useRetrieveBlogPostById = (id: string) => {
   return useQuery(['blogPost', id], async () => {
     const { data } = await axios.get(`${BACKEND_BASE_URL}/${ROUTE}/${id}`);
     return data;
   });
 };
 
-export const useGetAllBlogPosts = () => {
+export const useRetrieveBlogPosts = () => {
   return useQuery("blogPosts", async () => {
     const { data } = await axios.get(`${BACKEND_BASE_URL}/${ROUTE}/all`);
     return data;
@@ -23,7 +23,7 @@ export const useCreateBlogPost = () => {
   return useMutation(
     async (body: PostRequestBody) => {
       return await axios.request({
-    method: "POST",
+        method: "POST",
         url: `${BACKEND_BASE_URL}/${ROUTE}/`,
         data: body,
       });
@@ -31,6 +31,7 @@ export const useCreateBlogPost = () => {
   );
 };
 
+// I am not sure whether I would need this
 export type PostRequestBody = {
   title: string;
   content: string;
