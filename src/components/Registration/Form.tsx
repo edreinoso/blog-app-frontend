@@ -6,7 +6,6 @@ import PasswordField from "src/components/common/forms/PasswordField";
 import TextField from "src/components/common/forms/TextField";
 import {
   useCreateUser,
-  PostRequestBody
 } from "src/services/users";
 import * as Yup from "yup";
 
