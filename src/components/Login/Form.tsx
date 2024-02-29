@@ -1,9 +1,10 @@
-import { Button, Flex, FormControl, FormLabel, Stack } from "@chakra-ui/react";
+import { Button, Flex, FormControl, FormLabel, Stack, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import React from "react";
 import { Navigate } from "react-router-dom";
 import PasswordField from "src/components/common/forms/PasswordField";
 import TextField from "src/components/common/forms/TextField";
+import { ErrorResponse } from "@types";
 import {
   useLoginUser,
   PostLoginRequestBody
@@ -11,6 +12,7 @@ import {
 import { login } from "src/store/actions/auth";
 import useStateDispatch from "src/utils/useStateDispatch";
 import * as Yup from "yup";
+import axios, { AxiosError } from 'axios';
 
 interface LoginFormProps {}
 
@@ -19,8 +21,14 @@ type LoginFormValues = {
   password: string;
 };
 
+function isAxiosError(error: unknown): error is AxiosError<ErrorResponse> {
+  return axios.isAxiosError(error);
+}
+
 const LoginForm: React.FC<LoginFormProps> = () => {
   const dispatch = useStateDispatch();
+
+  const toast = useToast();
 
   const { mutate: postLogin, isLoading, isSuccess } = useLoginUser();
   // const { mutate: postLogin, isLoading, isSuccess } = useLoginUser();
@@ -37,11 +45,28 @@ const LoginForm: React.FC<LoginFormProps> = () => {
 
   const handleSubmit = async (values: PostLoginRequestBody) => {
     await postLogin(values, {
-      onSuccess: (data) => {
-        dispatch(login({ user: data.data}))
+      onSuccess: (userData) => {
+        dispatch(login({ user: userData.data.data}))
       },
-      onError: (error) => {
-        console.log('Oh oh, theres been an error', error)
+      onError: (error: unknown) => {
+        if (isAxiosError(error)) {
+          const errorMessage = error.response?.data?.errors || "Please try again.";
+          toast({
+            status: "error",
+            title: "There has been an error!",
+            description: error.response?.data?.errors || "Please try again.",
+            position: "top",
+          });
+        } else {
+          // Handle non-Axios errors or provide a generic error message
+          console.error("An unexpected error occurred", error);
+          toast({
+            status: "error",
+            title: "Unexpected error",
+            description: "An unexpected error occurred. Please try again.",
+            position: "top",
+          });
+        }
       }
     })
   };
