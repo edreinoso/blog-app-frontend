@@ -153,3 +153,5 @@ tls.crt
 tls.key
 *.pem
 *.tgz
+
+.dockerignore
