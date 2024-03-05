@@ -5,6 +5,10 @@ WORKDIR /tmp/sc-blog-web
 
 COPY . /tmp/sc-blog-web/
 
+# Build argument for environment variable
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL $REACT_APP_API_URL
+
 RUN npm install -g npm@latest && npm install && npm run build
 
 FROM nginx
