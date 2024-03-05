@@ -4,6 +4,8 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { PostRequestBody, useCreateBlogPost } from "src/services/blogposts";
 import * as Yup from "yup";
+import { useSelector } from 'react-redux';
+import { RootState } from 'src/types';
 import BlogPostFields from "../common/BlogPostFields";
 
 interface NewBlogPostFormProps {}
@@ -15,7 +17,10 @@ type NewBlogPostFormValues = {
 
 const NewBlogPostForm: React.FC<NewBlogPostFormProps> = () => {
   const { mutate: createBlogPost, isLoading, isSuccess } = useCreateBlogPost();
-  
+  const userId = useSelector((state: RootState) => state.auth.user.id);
+
+  console.log('User ID', userId);
+
   const toast = useToast();
 
   const validationSchema = Yup.object({
@@ -28,8 +33,18 @@ const NewBlogPostForm: React.FC<NewBlogPostFormProps> = () => {
     content: "",
   };
 
-  const handleSubmit = async (values: PostRequestBody) => {
-    await createBlogPost(values, {
+  const handleSubmit = async (values: NewBlogPostFormValues) => {
+    if (!userId) {
+      console.log("User ID is missing")
+      return;
+    }
+
+    const postValues: PostRequestBody = {
+     ...values,
+      userId: userId,
+    }
+    
+    await createBlogPost(postValues, {
       onSuccess: () => {
           toast({
             status: "success",

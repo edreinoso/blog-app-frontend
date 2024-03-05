@@ -45,3 +45,11 @@ export interface StateAction extends Action {
   type: string;
   payload?: any;
 }
+
+export interface RootState {
+  auth: {
+    user: {
+      id: string;
+    };
+  };
+}

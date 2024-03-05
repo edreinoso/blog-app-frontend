@@ -25,16 +25,19 @@ export const useCreateBlogPost = () => {
       return await axios.request({
         method: "POST",
         url: `${BACKEND_BASE_URL}/${ROUTE}/`,
+        headers: {
+          Userid: `${body.userId}`,
+        },
         data: body,
       });
     }
   );
 };
 
-// I am not sure whether I would need this
 export type PostRequestBody = {
   title: string;
   content: string;
+  userId?: string;
 };
 export type PostResponseBody = SuccessResponse<BlogPost>;
 
