@@ -13,6 +13,8 @@ const NavBar: React.FC<NavBarProps> = () => {
 
   const { isAuthenticated, user } = useStateSelector((state) => state.auth);
 
+  // console.log(isAuthenticated, user.data.first_name)
+  
   return (
     <Box position="sticky" bg="white" top={0} shadow="sm" py={4} zIndex={999}>
       <Flex
@@ -30,7 +32,7 @@ const NavBar: React.FC<NavBarProps> = () => {
         >
           <Logo h={10} w={10} />
           <Text ml={4} fontSize="2xl" fontWeight="black" color="purple.500">
-            SC Blog
+            Blog App
           </Text>
         </Flex>
 
