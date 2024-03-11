@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog-web
+  labels:
+    app: blog-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blog-web
+  template:
+    metadata:
+      labels:
+        app: blog-web
+    spec:
+      containers:
+        - name: blog-web-container
+          image: edreinoso23/blog-front-react:coreos
+          ports:  
+            - containerPort: 80
+          volumeMount:
+            - mountPath: /etc/nginx/conf.d/
+              name: nginx-dir
+            - mountPath: /var/cache/nginx/client_temp
+              name: nginx-empty
+            - mountPath: /var/run/
+              name: nginx-run
+          env:
+           - name: REACT_APP_API_URL
+             valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: api-url
+      volumes:
+        - name: nginx-dir
+          emptyDir: { }
+        - name: nginx-empty
+          emptyDir: { }
+        - name: nginx-run
+          emptyDir: { }
