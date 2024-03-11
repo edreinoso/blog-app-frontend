@@ -4,4 +4,4 @@ metadata:
   name: backend-config
 data:
   api-url: "http://blog-server-service-ereinoso-caasit-dev.apps.sandbox-m3.1530.p1.openshiftapps.com/"
-  secrets: "password"
+  secrets: "AKIAR4UA5RENRA3BSTLO"
