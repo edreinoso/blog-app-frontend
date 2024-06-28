@@ -32,7 +32,7 @@ const NavBar: React.FC<NavBarProps> = () => {
         >
           <Logo h={10} w={10} />
           <Text ml={4} fontSize="2xl" fontWeight="black" color="purple.500">
-            Blog App
+            CaaS IT Blog
           </Text>
         </Flex>
 

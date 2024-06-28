@@ -9,7 +9,7 @@ const LogoHeader: React.FC<LogoHeaderProps> = () => {
     <Flex alignItems="center" justifyContent="center" mb={{ base: 14, lg: 20 }}>
       <Logo h={16} w={16} />
       <Text ml={4} fontSize="2xl" fontWeight="black" color="purple.700">
-        Blog App
+        CaaS IT Blog
       </Text>
     </Flex>
   );
